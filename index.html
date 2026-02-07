@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>EPSO AD5 – Digital Prep</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="app-header">
+    <div class="brand">
+      <div class="logo">EPSO</div>
+      <div>
+        <div class="title">AD5 Digital Prep</div>
+        <div class="subtitle">Bank: <span id="bankCount">…</span> questions · JSON: digital.v1.0.json</div>
+      </div>
+    </div>
+    <nav class="nav">
+      <button class="nav-btn active" data-view="practice">Practice</button>
+      <button class="nav-btn" data-view="exam">Exam</button>
+      <button class="nav-btn" data-view="progress">Progress</button>
+      <button class="nav-btn" data-view="settings">Settings</button>
+    </nav>
+  </header>
+
+  <main class="container">
+    <!-- PRACTICE -->
+    <section class="view" id="view-practice">
+      <div class="grid2">
+        <div class="card">
+          <div class="card-title">Practice Mode</div>
+          <div class="card-subtitle">Answer one question at a time. Use filters to focus on weak areas.</div>
+
+          <div class="controls">
+            <label class="field">
+              <span>Theme</span>
+              <select id="practiceTheme">
+                <option value="ALL">All themes</option>
+              </select>
+            </label>
+
+            <label class="field">
+              <span>Shuffle</span>
+              <select id="practiceShuffle">
+                <option value="ON">On</option>
+                <option value="OFF">Off</option>
+              </select>
+            </label>
+
+            <button class="btn" id="practiceNew">New question</button>
+          </div>
+
+          <div class="qa" id="practiceQA" aria-live="polite"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Session Timer</div>
+          <div class="card-subtitle">Tracked time contributes to your daily training and the 5h target.</div>
+
+          <div class="timer-row">
+            <label class="field">
+              <span>Training day</span>
+              <input id="trainingDay" type="date" />
+            </label>
+            <div class="timer-box">
+              <div class="timer-label">Session</div>
+              <div class="timer-value" id="sessionTime">00:00:00</div>
+            </div>
+          </div>
+
+          <div class="controls">
+            <button class="btn" id="timerStart">Start</button>
+            <button class="btn secondary" id="timerPause" disabled>Pause</button>
+            <button class="btn secondary" id="timerStop" disabled>Stop & Save</button>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="controls">
+            <label class="field grow">
+              <span>Add manual time (minutes)</span>
+              <input id="manualMinutes" type="number" min="0" step="1" placeholder="e.g., 15" />
+            </label>
+            <button class="btn secondary" id="manualAdd">Add</button>
+          </div>
+
+          <div class="note">
+            Tip: For EPSO pace, try micro-sprints: 25–30 minutes focused + 5 minutes break.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- EXAM -->
+    <section class="view hidden" id="view-exam">
+      <div class="card">
+        <div class="card-title">Exam Mode</div>
+        <div class="card-subtitle">40 questions · 30 minutes · 1 best answer only</div>
+
+        <div class="controls">
+          <button class="btn" id="examStart">Start exam</button>
+          <button class="btn secondary" id="examReset" disabled>Reset</button>
+
+          <div class="timer-box">
+            <div class="timer-label">Time left</div>
+            <div class="timer-value" id="examTime">30:00</div>
+          </div>
+
+          <div class="pill" id="examProgressPill">0 / 40</div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div id="examArea"></div>
+      </div>
+    </section>
+
+    <!-- PROGRESS -->
+    <section class="view hidden" id="view-progress">
+      <div class="grid2">
+        <div class="card">
+          <div class="card-title">5-hour Target Gauge</div>
+          <div class="card-subtitle">This resets daily. Your aim: reach 5h tracked time for the selected day.</div>
+
+          <div class="controls">
+            <label class="field">
+              <span>Day</span>
+              <input id="progressDay" type="date" />
+            </label>
+            <button class="btn secondary" id="todayBtn">Today</button>
+          </div>
+
+          <div class="gauge">
+            <div class="gauge-top">
+              <div class="gauge-number" id="dayTotal">0h 0m</div>
+              <div class="gauge-caption">of 5h target</div>
+            </div>
+            <div class="progressbar" role="progressbar" aria-valuemin="0" aria-valuemax="100">
+              <div class="progressfill" id="dayGaugeFill" style="width:0%"></div>
+            </div>
+            <div class="gauge-foot">
+              <div id="dayGaugePct">0%</div>
+              <div class="muted">Saved automatically per day</div>
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="card-title small">Per-theme accuracy (last 7 days)</div>
+          <div id="themeStats" class="stats"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Training Days</div>
+          <div class="card-subtitle">Saved totals and quick navigation.</div>
+
+          <div id="daysList" class="days-list"></div>
+
+          <div class="divider"></div>
+
+          <div class="controls">
+            <button class="btn danger" id="clearDay">Clear selected day</button>
+            <button class="btn danger secondary" id="clearAll">Clear all history</button>
+          </div>
+
+          <div class="note warn">
+            Clearing history affects timers and performance stats (stored locally in your browser).
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SETTINGS -->
+    <section class="view hidden" id="view-settings">
+      <div class="card">
+        <div class="card-title">Settings</div>
+        <div class="card-subtitle">Local-only storage. No network calls. Works offline once loaded.</div>
+
+        <div class="grid2">
+          <div class="card inner">
+            <div class="card-title small">Data file</div>
+            <div class="muted">digital.v1.0.json</div>
+            <div class="divider"></div>
+            <button class="btn secondary" id="reloadBank">Reload bank</button>
+          </div>
+
+          <div class="card inner">
+            <div class="card-title small">Export / Import</div>
+            <div class="muted">Export your local progress (JSON) or import it on another device.</div>
+            <div class="divider"></div>
+            <div class="controls">
+              <button class="btn secondary" id="exportProgress">Export</button>
+              <label class="btn secondary file-btn">
+                Import
+                <input type="file" id="importProgress" accept="application/json" />
+              </label>
+            </div>
+            <div class="note">Import replaces your local progress store.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="muted">EPSO-style practice · 40Q/30min · Keep your bank JSON under version control.</div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
